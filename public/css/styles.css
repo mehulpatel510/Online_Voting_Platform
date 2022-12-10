@@ -1,0 +1,13 @@
+body{
+    color: black;
+    font-family:'Courier New', Courier, monospace;
+
+}
+table, td{
+    border: 1px solid black;
+    padding: 5px;
+    margin: 0px;
+}
+.Election-Item:hover .trash-icon{
+    display: block;
+}

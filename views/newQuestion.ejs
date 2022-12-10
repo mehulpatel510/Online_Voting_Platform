@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/css/styles.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>New Question</title>
+</head>
+
+<body>
+    <div class="grid grid-cols-6">
+        <div class="col-start-3 col-span-2">
+            <%- include('header.ejs') %>
+            <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+
+            <h1 class="mt-8 text-3xl font-semibold text-gray-600">New Question</h1>
+            
+                <div class="text-red-600 mt-4">
+
+                    <% if(messages && messages.error && messages.error.length> 0) { %>
+                        <% for(var i=0; i<messages.error.length; i++) { %>
+                            <li>
+                                <%= messages.error[i].message %>
+                            </li>
+                            <% } %>
+                                <% } %>
+
+
+                </div>
+
+                <link data-minify="1"
+                    href="https://www.bacancytechnology.com/blog/wp-content/cache/min/1/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css?ver=1669899086"
+                    rel="stylesheet" type="text/css">
+
+
+                <form action="/elections/<%= election.id %>/questions/new" method="post">
+                    <input type="hidden" name="_csrf" value="<%- csrfToken %>" />
+
+                    <div class="py-2">
+                        <label for="questionText">What is your Question?</label>
+                        <input type="text" name="questionText" required
+                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" />
+                    </div>
+
+                    <div class="py-2">
+                        <label for="description">Description</label>
+                        <textarea name="description" required style="text-align: left; align-content: left;"
+                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" >
+                        </textarea> 
+                    </div>
+
+                    <div class="py-2">
+                        <button type="submit"
+                            class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+
+
+        </div>
+
+    </div>
+</body>
+
+</html>

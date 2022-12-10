@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/css/styles.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+
+    <script>
+        var token = document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute("content");
+
+        function updateElection(id, status) {
+            //alert("Status ::: " + status);
+            fetch(`/elections/${id}/launch`, {
+                method: "put",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "_csrf": token,
+                    launched: status
+                })
+            })
+                .then((res) => {
+                    window.location.reload();
+                })
+                .catch((err) => console.error(err));
+        }
+
+        function removeElection(id) {
+            fetch(`/elections/${id}`, {
+                method: "delete",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "_csrf": token
+                })
+            }).then((res) => {
+
+                window.location.reload();
+            })
+                .catch((err) => console.error(err));
+        }
+
+    </script>
+    <title>Ballot</title>
+</head>
+
+<body>
+    <div class="grid grid-cols-6">
+        <div class="col-start-3 col-span-5">
+
+            <%- include('header.ejs') %>
+                <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+
+                <h1 class="mt-8 text-3xl font-semibold text-gray-600">
+                    <%= election.electionName %> - Questions
+                </h1>
+
+                <div class="mt-8">
+                    <h5>Your election has <%= questions.length %> questions in the ballot.</h5>
+                    <p class="py-2">
+                        <a href="/elections/<%=election.id%>/questions" class="text-blue-600">Manage Questions</a>
+                    </p>
+                </div>
+
+                <div class="mt-8">
+                    <h5>Your election has <%= voters.length %> registered voters.</h5>
+                    <p class="py-2">
+                        <a href="/elections/<%=election.id%>/voters" class="text-blue-600">Manage Voters</a>
+                    </p>
+                </div>
+
+                <div class="mt-8">
+                        <% if (election.launched==false) { %>
+                            <p class="py-2">
+                                <a href="#" onclick="updateElection(<%= election.id %>, true)"
+                                    class="text-blue-600">Launch
+                                    Election</a>
+                            </p>
+                            <% } else{ %>
+                    
+                                <p class="py-2">
+
+                                    <a href="#" onclick="updateElection(<%= election.id %>, false)"
+                                        class="text-blue-600">Preview Results</a>
+                                </p>
+                    
+                    
+                                <p class="py-2">
+
+                                    <a href="#" onclick="updateElection(<%= election.id %>, false)"
+                                        class="text-blue-600">End Election</a>
+                                </p>
+                                <% } %>
+                    
+                </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

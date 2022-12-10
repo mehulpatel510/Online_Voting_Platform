@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/css/styles.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <title>Sign Up</title>
+</head>
+
+<body>
+    <div class="grid grid-cols-6">
+        <div class="col-start-3 col-span-2">
+            <%- include('header.ejs') %>
+            <p class="py-2">Already have an account? <a href="/login" class="text-green-600">Sign-in</a></p>
+           
+                <h6 class="py-6">Sign-Up as a new user</h6>
+
+                <div class="text-red-600 mt-4">
+                    <% if(messages && messages.error && messages.error.length> 0) { %>
+                        <% for(var i=0; i<messages.error.length; i++) { %>
+                            <li>
+                                <!--%= messages.error[i].errors[0].message % -->
+                                <%= messages.error[i].message %>
+                            </li>
+
+                            <% } %>
+                                <% } %>
+
+
+                </div>
+
+                <form action="/users" method="post">
+                    <input type="hidden" name="_csrf" value="<%- csrfToken %>" />
+                    <div class="py-2">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" name="firstName" required
+                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" />
+                    </div>
+                    <div class="py-2">
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" name="lastName"
+                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" />
+                    </div>
+                    <div class="py-2">
+                        <label for="email">Email:</label>
+                        <input type="email" required name="email"
+                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" />
+                    </div>
+                    <div class="py-2">
+                        <label for="password">Password:</label>
+                        <input type="password" required name="password"
+                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" />
+                    </div>
+                    <div class="py-2">
+                        <button type="submit"
+                            class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">Sign-Up</button>
+                    </div>
+                </form>
+        </div>
+
+    </div>
+</body>
+
+</html>
