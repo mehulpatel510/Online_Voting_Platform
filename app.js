@@ -15,6 +15,8 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const path = require("path");
+const { Console } = require("console");
+
 //const user = require("./models/user");
 //const election = require("./models/election");
 //const __dirname = path.resolve();
@@ -33,6 +35,7 @@ app.use(express.static("public"));
 app.use(session({
     resave: false,//added 
     saveUninitialized: true,//added 
+    role: 'guest',
     secret: "my-super-secret-key-123123123123",
     cookie: {
         maxAge: 24 * 60 * 60 * 100
@@ -58,7 +61,7 @@ passport.use(new LocalStrategy({
                     if (result) {
                         console.log("Login Result:" + result)
                         console.log("User:" + user.email)
-
+                        session.role = 'admin'
                         return done(null, user);
                     }
                     else {
@@ -85,6 +88,7 @@ passport.use(new LocalStrategy({
                     console.log(result)
                     if (result) {
                         console.log("Login Result:" + result)
+                        session.role = 'voter'
                         return done(null, user);
                     }
                     else {
@@ -211,9 +215,10 @@ app.get("/elections/:id", connectEnsureLogin.ensureLoggedIn(), async function (r
     const election = await Election.findByPk(request.params.id);
     const questions = await Question.findAll({ where: { electionId: election.id } });
     const voters = await Voter.findAll({ where: { electionId: election.id } });
-    console.log("launched:"+election.launched)
+    const fullUrl = request.protocol + "://" + request.hostname + ":" + app.get('PORT') + "/elections/" + election.id + "/vote";
+    console.log("launched:" + election.launched)
     response.render("ballot", {
-        csrfToken: request.csrfToken(), election, questions, voters
+        csrfToken: request.csrfToken(), election, questions, voters, fullUrl
     });
 
 });
@@ -237,6 +242,38 @@ app.put("/elections/:id/launch", connectEnsureLogin.ensureLoggedIn(), async func
     }
 
 });
+
+app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
+    try{
+
+    
+    console.log("Role:" + session.role)
+
+    if (session.role){
+            console.log("Role:" + session.role)
+            if (session.role == 'voter') {
+                const election = await Election.findByPk(request.params.id);
+                const questions = await Question.findAll({ where: { electionId: election.id } });
+    
+                response.render("vote", {
+                    csrfToken: request.csrfToken(), election, questions
+                });
+            
+            }
+            else {
+                throw(new Error('Invalid User'))
+                
+            }
+        }else{
+            throw(new Error('Invalid User'))
+        }
+    }catch(error){
+        request.flash('error', { message: error.message });
+        return response.redirect("/login");
+    }
+
+});
+
 app.get("/elections/:id/voters", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
     const election = await Election.findByPk(request.params.id);
     const voters = await Voter.findAll({ where: { electionId: election.id } });
@@ -292,10 +329,14 @@ app.delete("/voters/:id", connectEnsureLogin.ensureLoggedIn(), async function (r
 app.get("/elections/:id/questions", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
     const election = await Election.findByPk(request.params.id);
     const questions = await Question.findAll({ where: { electionId: election.id } });
-
-    response.render("questions", {
-        csrfToken: request.csrfToken(), election, questions
-    });
+    if (election.launched == false) {
+        response.render("questions", {
+            csrfToken: request.csrfToken(), election, questions
+        });
+    }
+    else {
+        return response.redirect("/elections/" + election.id);
+    }
 
 });
 

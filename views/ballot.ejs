@@ -61,10 +61,25 @@
                 </h1>
 
                 <div class="mt-8">
+                    <% if (election.launched==true) { %>
+                        <h5>This election has launched, and voters can access this URL:</h5>
+                        <p class="py-2">
+                        <a href="/elections/<%=election.id%>/vote" class="text-blue-600">
+                            <%= fullUrl %>
+
+                        </a>
+                    </p>
+                    <% }  %>
+                </div>
+
+
+                <div class="mt-8">
                     <h5>Your election has <%= questions.length %> questions in the ballot.</h5>
+                    <% if (election.launched==false) { %>
                     <p class="py-2">
                         <a href="/elections/<%=election.id%>/questions" class="text-blue-600">Manage Questions</a>
                     </p>
+                    <% }  %>
                 </div>
 
                 <div class="mt-8">
