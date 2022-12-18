@@ -1,4 +1,7 @@
 'use strict';
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 const {
   Model
 } = require('sequelize');
@@ -16,9 +19,11 @@ module.exports = (sequelize, DataTypes) => {
       })
     }
 
-    static addVoter({ voterId, password }, electionId) {
-      
-      return this.create({ voterId:voterId,password:password, electionId: electionId });
+    static async addVoter({ voterId, password }, electionId) {
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      console.log("Hash Password:" + hashedPassword)
+
+      return this.create({ voterId:voterId, password:hashedPassword, electionId: electionId });
     }
 
     deleteVoter() {

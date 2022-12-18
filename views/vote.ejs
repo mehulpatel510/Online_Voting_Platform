@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <link href="/css/styles.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="<%= csrfToken %>">
@@ -15,10 +15,10 @@
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content");
 
-        function updateElection(id,status) {
+        function updateElection(id, status) {
             console.log("Status ::: " + status);
             // fetch(`/todos/${id}/markAsCompleted`, {
-                fetch(`/elesctions/${id}`, {
+            fetch(`/elesctions/${id}`, {
                 method: "put",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -40,9 +40,9 @@
                     "_csrf": token
                 })
             }).then((res) => {
-                
-                    window.location.reload();
-                })
+
+                window.location.reload();
+            })
                 .catch((err) => console.error(err));
         }
 
@@ -53,65 +53,68 @@
 <body>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-5">
-            
+
             <%- include('header.ejs') %>
-            <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+                <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
 
-            <h1 class="mt-8 text-3xl font-semibold text-gray-600">
-                <%= election.electionName %>
-            </h1>
-            
-            <div>
-                <% if (questions.length == 0){
-                    %>
-                    <h5>No any question yet!</h5>
-                    <%
-                }
-                else{
-                    let questioncount = 1;
-                    let temp = session.get("questionCount")
-                    if(temp == null)
-                    {
-                        session.set('questionCount',questionCount);
-                    }
-                    else
-                    {
-                        questionCount = temp;
-                    }
-                    %>
-                  
-                <h4>
-                    Question # <%= questionCount %> / <%- questions.length %>
-                </h4>
-                <ul class="list-none">
-                    <% questions.forEach((item) => { %>
-                    <li class="Election-Item">
-                        <div class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
-                            <a class="ml-2 text-sm text-gray-600 cursor-pointer" 
-                            href="/questions/<%- item.id %>">
-                                <%- item.questionText %>
-                            </a>
-                           
-                            <a href="#" class="hidden trash-icon ml-2"
-                                onclick = "removeElection(<%- item.id %>)"
-                                >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                </svg>
-                            </a>
+                <h1 class="mt-8 text-3xl font-semibold text-gray-600">
+                    <%= election.electionName %>
+                </h1>
+
+                <div>
+                    <% if (questions.length==0){ %>
+                        <h5>No any question yet!</h5>
+                        <% } %>
+
+                        <% if (session.questionIndex < questions.length){ %>
+                        <h4 class="mt-4">
+                            Question # <%= (session.questionIndex + 1) %> / <%= questions.length %>
+                        </h4>
+                       
+                        <div class="text-red-600 mt-4">
+
+                            <% if(messages && messages.error && messages.error.length> 0) { %>
+                                <% for(var i=0; i<messages.error.length; i++) { %>
+                                    <li>
+                                        <%= messages.error[i].message %>
+                                    </li>
+                                    <% } %>
+                                        <% } %>
+    
+    
                         </div>
-                    </li>
-                    <% }) %>
-                    
-                </ul>
-                <%
-            }
-            %>
-            </div>
 
-            <p class="py-2"><a href="/elections/<%- election.id %>/questions/new" class="text-blue-600">Create a Question</a></p>
+                        <form action="/elections/<%= election.id %>/vote" method="post">
+                            <input type="hidden" name="_csrf" value="<%- csrfToken %>" />
+                            <input type="hidden" name="questionId" value="<%= question.id %>" />
+                   
+                            <h4  class="mt-4 text-xl font-semibold"><%= question.questionText %></h4>
+                            <ul class="list-none">
+                                <% options.forEach((item)=> { %>
+                                    <li class="Election-Item">
+                                        <div class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
+                                            <input type="radio" name="optionId"
+                                            class="ml-2 text-sm text-gray-600 cursor-pointer"
+                                            value="<%= item.id %>"
+                                            />
+                                                <%= item.optionText %>
+                                        </div>
+                                    </li>
+                                    <% }) %>
+
+                            </ul>
+                            <div>
+                                <button type="submit"
+                                    class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">
+                                    Vote
+                                </button>
+                            </div>
+                            </form>
+                            <% } else{ %>
+                                <h4  class="mt-4 text-xl font-semibold">Thanks for giving your valuable vote!</h4>
+                            
+                                <% } %>
+                </div>
         </div>
 
     </div>

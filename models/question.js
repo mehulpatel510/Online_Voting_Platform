@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     }
     static addQuestion({ questionText, description }, electionId) {
       console.log("Election Id for question:" + electionId)
-      return this.create({ questionText: questionText, description: description, electionId: electionId });
+      return this.create({ questionText: questionText, description: description.trim(), electionId: electionId });
     }
   }
   Question.init({
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         len: {
-          args: [5, 20],
+          args: [5, ],
           msg: "Question Text should be more than five characters!"
         },
         notNull: true
@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         len: {
-          args: [5, 20],
+          args: [5, ],
           msg: "Description should be more than five characters!"
         },
         notNull: true
