@@ -19,6 +19,13 @@ module.exports = (sequelize, DataTypes) => {
       console.log("Election Id for question:" + electionId)
       return this.create({ questionText: questionText, description: description.trim(), electionId: electionId });
     }
+
+    static async getQuestionText(id)
+    {
+      const question = await Question.findByPk(id);
+      console.log("Question Text:" + question.questionText )
+      return question.questionText;
+    }
   }
   Question.init({
     questionText: {

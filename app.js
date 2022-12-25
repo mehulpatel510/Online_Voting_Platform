@@ -1,8 +1,20 @@
 const express = require("express");
 const flash = require("connect-flash");
 var csrf = require("tiny-csrf")
+
+//const { engine } = require('express-handlebars');
+
 const app = express();
-const { Voter, User, Election, Question, Option, Vote } = require("./models");
+
+//app.engine('handlebars', engine());
+//app.set('view engine', 'handlebars');
+//app.set('views', './views');
+
+//app.engine('.ejs', engine({extname: '.ejs'}));
+app.set('view engine', '.ejs');
+
+
+const { Voter, User, Election, Question, Option, Vote, Model, sequelize } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
@@ -15,9 +27,9 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const path = require("path");
-const { Console } = require("console");
+//const { Console } = require("console");
 
-//const user = require("./models/user");
+//const createImage = require("./models/result");
 //const election = require("./models/election");
 //const __dirname = path.resolve();
 // eslint-disable-next-line no-undef
@@ -149,7 +161,6 @@ app.use(function (request, response, next) {
 
 ///// Setting Routes ///////
 
-
 app.get("/", (request, response) => {
     response.render("index");
 });
@@ -280,6 +291,7 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
     try {
 
         session.electionId = request.params.id;
+        console.log("Voter id:" + request.user.id)
         console.log("Role:" + session.role)
         console.log("Election ID:" + session.electionId)
         if (session.role) {
@@ -297,37 +309,37 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
                     console.log("question:" + question.id)
                     const options = await Option.findAll({ where: { questionId: question.id } });
                     console.log("Option length:" + options.length);
-                
 
-                response.render("vote", {
-                    csrfToken: request.csrfToken(), election, questions, session, question, options
-                });
-                }else{
+
+                    response.render("vote", {
+                        csrfToken: request.csrfToken(), election, questions, session, question, options
+                    });
+                } else {
                     response.render("vote", {
                         csrfToken: request.csrfToken(), election, questions, session
                     });
-                        
+
                 }
 
-        }
-        else {
+            }
+            else {
+                let error = new Error()
+                error.message = 'Invalid user/login as voter'
+                throw error;
+                //throw(new Error('Invalid User'))
+
+            }
+        } else {
             let error = new Error()
             error.message = 'Invalid user/login as voter'
             throw error;
             //throw(new Error('Invalid User'))
-
         }
-    } else {
-        let error = new Error()
-        error.message = 'Invalid user/login as voter'
-        throw error;
-        //throw(new Error('Invalid User'))
+    } catch (error) {
+        console.log("For Voter error:" + error.message)
+        request.flash('error', error.message);
+        return response.redirect("/login");
     }
-} catch (error) {
-    console.log("For Voter error:" + error.message)
-    request.flash('error', error.message);
-    return response.redirect("/login");
-}
 
 });
 
@@ -360,9 +372,121 @@ app.post("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async funct
     }
 });
 
+app.get("/elections/:id/preview",
+    //connectEnsureLogin.ensureLoggedIn(), 
+    async function (request, response) {
+        const election = await Election.findByPk(request.params.id);
+        const voters = await Voter.findAll({ where: { electionId: election.id } });
+        const questions = await Question.findAll({ where: { electionId: election.id } });
+        // const options = await Option.findAll({
+        //     include: {
+        //         model: Question,
+        //         include: {
+        //             model: Election,
+        //             where: { id: election.id }
+        //         }
+        //     }
+        // });
+
+        const countVotes = await Vote.findAll({
+            attributes: [[sequelize.fn('count', sequelize.col('Vote.optionId')), 'count']],
+            include: [
+                { model: Option, required: true, attribute: ['optionText'] },
+                {
+                    model: Question, required: true, attribute: ['questionText'],
+                    include: [
+                        {
+                            model: Election, required: true, attribute: ['id'],
+                            where: { id: request.params.id },
+                        }]
+                },
+            ],
+
+            group: ['Question->Election.id', 'Question.id', 'Option.id'],
+            //raw: true
+            //order: ['']
+        });
+        const jsonVotes = JSON.stringify(countVotes, null, 2);
+        console.log(jsonVotes);
+        console.log("count: " + countVotes.length)
+        console.log("rows: " + countVotes)
+        countVotes.forEach((item) => {
+            console.log(item)
+            // console.log(item.count)
+            console.log(item.dataValues.count)
+        })
+
+
+        // const countVotes = await Vote.findAll({
+        //     attributes: ['Vote.questionId', 'Vote.optionId', [sequelize.fn('count', sequelize.col('Vote.id')), 'count']],
+        //     include: [
+        //         {
+        //             model: Option, attributes: ['optionText','questionId'],
+        //            // where: { id: Vote.optionId },
+        //            required: true,
+        //             include: {
+        //                 model: Question, attributes: ['questionText','electionId'],
+        //                 //where: { id: Vote.questionId },
+        //                 required: true,
+        //                 include: {
+        //                     model: Election, attributes: ['id'],
+        //                    where: { id: request.params.id },
+        //                    required: true
+        //                 }
+        //             },
+        //         },
+
+        //     ],
+        //     group: ['electionId','Vote.questionId', 'Option.id'],
+        //     //raw: true
+        //     //order: ['']
+        // });
+        // console.log(JSON.stringify(countVotes, null, 2));
+
+        // const { count, rows } = await Vote.findAndCountAll({
+        //     // include: [
+        //     //     {model: Question, attributes: ['questionText']},
+        //     //     {model: Option, attributes: ['optionText'] } // I need to count this. model.
+        //     // ],
+        //     group: ['Vote.questionId', 'Vote.optionId']
+        // });
+        // console.log("count: " + countVotes.length)
+        // console.log("rows: " + countVotes)
+        // countVotes.forEach((item) => {
+        //     console.log(item.dataValues.count)
+        // })
+
+
+        // const countVotes = await Vote.findAll({
+        //     //attributes:[Vote.questionId,Vote.optionId],
+        //     //model: Vote, required: true,
+        //     // include: {
+        //     //model: Option, required: true,
+        //     //     include: {
+        //     //         model: Question,
+        //     //         include: {
+        //     //             model: Election, required: true,
+        //     //             where: { id: election.id }
+        //     //         }
+        //     //     }
+        //     //  },
+        //     //        where: { electionId: election.id },
+        //     group: ['Vote.questionId', 'Vote.optionId', 'Vote.id']
+        // });
+
+        // console.log("Votes Length: " + countVotes.length)
+        // const votes = await Vote.count({ group: ['questionId', 'optionId'] });
+
+        response.render("preview", {
+            csrfToken: request.csrfToken(), election, voters, questions, Question, countVotes
+        });
+
+    });
+
 app.get("/elections/:id/voters", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
     const election = await Election.findByPk(request.params.id);
     const voters = await Voter.findAll({ where: { electionId: election.id } });
+
 
     response.render("voters", {
         csrfToken: request.csrfToken(), election, voters

@@ -62,58 +62,65 @@
                 </h1>
 
                 <div>
-                    <% if (questions.length==0){ %>
-                        <h5>No any question yet!</h5>
-                        <% } %>
-
-                        <% if (session.questionIndex < questions.length){ %>
-                        <h4 class="mt-4">
-                            Question # <%= (session.questionIndex + 1) %> / <%= questions.length %>
-                        </h4>
-                       
-                        <div class="text-red-600 mt-4">
-
-                            <% if(messages && messages.error && messages.error.length> 0) { %>
-                                <% for(var i=0; i<messages.error.length; i++) { %>
-                                    <li>
-                                        <%= messages.error[i].message %>
-                                    </li>
-                                    <% } %>
-                                        <% } %>
-    
-    
-                        </div>
-
-                        <form action="/elections/<%= election.id %>/vote" method="post">
-                            <input type="hidden" name="_csrf" value="<%- csrfToken %>" />
-                            <input type="hidden" name="questionId" value="<%= question.id %>" />
-                   
-                            <h4  class="mt-4 text-xl font-semibold"><%= question.questionText %></h4>
-                            <ul class="list-none">
-                                <% options.forEach((item)=> { %>
-                                    <li class="Election-Item">
-                                        <div class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
-                                            <input type="radio" name="optionId"
-                                            class="ml-2 text-sm text-gray-600 cursor-pointer"
-                                            value="<%= item.id %>"
-                                            />
-                                                <%= item.optionText %>
-                                        </div>
-                                    </li>
-                                    <% }) %>
-
-                            </ul>
-                            <div>
-                                <button type="submit"
-                                    class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">
-                                    Vote
-                                </button>
-                            </div>
-                            </form>
-                            <% } else{ %>
-                                <h4  class="mt-4 text-xl font-semibold">Thanks for giving your valuable vote!</h4>
-                            
+                    <% if (election.launched==false){ %>
+                        <h5> Voting has ended </h5>
+                        <% } else { %>
+                            <% if (questions.length==0){ %>
+                                <h5>No any question yet!</h5>
                                 <% } %>
+
+                                    <% if (session.questionIndex < questions.length){ %>
+                                        <h4 class="mt-4">
+                                            Question # <%= (session.questionIndex + 1) %> / <%= questions.length %>
+                                        </h4>
+
+                                        <div class="text-red-600 mt-4">
+
+                                            <% if(messages && messages.error && messages.error.length> 0) { %>
+                                                <% for(var i=0; i<messages.error.length; i++) { %>
+                                                    <li>
+                                                        <%= messages.error[i].message %>
+                                                    </li>
+                                                    <% } %>
+                                                        <% } %>
+
+
+                                        </div>
+
+                                        <form action="/elections/<%= election.id %>/vote" method="post">
+                                            <input type="hidden" name="_csrf" value="<%- csrfToken %>" />
+                                            <input type="hidden" name="questionId" value="<%= question.id %>" />
+
+                                            <h4 class="mt-4 text-xl font-semibold">
+                                                <%= question.questionText %>
+                                            </h4>
+                                            <ul class="list-none">
+                                                <% options.forEach((item)=> { %>
+                                                    <li class="Election-Item">
+                                                        <div
+                                                            class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
+                                                            <input type="radio" name="optionId"
+                                                                class="ml-2 text-sm text-gray-600 cursor-pointer"
+                                                                value="<%= item.id %>" />
+                                                            <%= item.optionText %>
+                                                        </div>
+                                                    </li>
+                                                    <% }) %>
+
+                                            </ul>
+                                            <div>
+                                                <button type="submit"
+                                                    class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">
+                                                    Vote
+                                                </button>
+                                            </div>
+                                        </form>
+                                        <% } else{ %>
+                                            <h4 class="mt-4 text-xl font-semibold">Thanks for giving your valuable vote!
+                                            </h4>
+
+                                            <% } %>
+                        <% } %>
                 </div>
         </div>
 
