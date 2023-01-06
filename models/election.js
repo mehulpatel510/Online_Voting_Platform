@@ -32,6 +32,8 @@ module.exports = (sequelize, DataTypes) => {
       );
     }
 
+    
+
     deleteElection() {
       return Election.destroy({
         where: {

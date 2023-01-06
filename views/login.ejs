@@ -5,10 +5,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
 
     <link href="/css/styles.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="csrf-token" content="<%= csrfToken %>">
+    <script>
+        var token = document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute("content");
+    </script>
 
     <title>Login</title>
 </head>
@@ -16,7 +21,7 @@
 <body>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2">
-            <%- include('header.ejs', active="", title="Login") %>
+            <%- include('header.ejs', active="" , title="Login" ) %>
                 <p class="py-2">New here? <a href="/signup" class="text-green-600">Sign-Up Now</a></p>
                 <h6 class="py-2 font-semibold text">Login to your account</h6>
 
@@ -33,7 +38,7 @@
                 <form action="/session" method="post">
                     <input type="hidden" name="_csrf" value="<%- csrfToken %>" />
                     <div class="py-2">
-                        <label for="voterId">Email ID:</label>
+                        <label for="voterId">Voter ID:</label>
                         <input type="text" name="voterId"
                             class="border border-gray-600 rounded text-gray-900 p-2 w-full" />
                     </div>
@@ -47,7 +52,7 @@
                             class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">Sign-In</button>
                     </div>
                 </form>
-                
+
         </div>
 
     </div>

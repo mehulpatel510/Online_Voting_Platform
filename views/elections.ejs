@@ -9,6 +9,7 @@
     <link href="/css/styles.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="<%= csrfToken %>">
+    
 
     <script>
         var token = document
@@ -79,7 +80,7 @@
                     <% allElections.forEach((item) => { %>
                     <li class="Election-Item">
                         <div class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
-                            <a class="ml-2 text-sm text-gray-600 cursor-pointer" href="/elections/<%- item.id %>">
+                            <a class="ml-2 text-xl text-blue-700 cursor-pointer" href="/elections/<%- item.id %>">
                                 <%= item.electionName %>
                             </a>
                            

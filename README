@@ -1,0 +1,18 @@
+***////=== Online Voting System ***////===
+
+For testing use following credential.
+
+For Admin
+    Existing Users:
+        Username - admin@gmail.com  (In place of Voter ID)
+        Password - admin
+
+    For new registration of admin
+        Note: use 'admin' keyword in your username/email id like admin123@gmail.com
+
+For voter
+    Existing user:
+        VoterId: ABCD1
+        password: ABCD1
+
+    

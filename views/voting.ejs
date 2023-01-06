@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/css/styles.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+
+    <title>Voting</title>
+</head>
+
+<body>
+    <div class="grid grid-cols-6">
+        <div class="col-start-3 col-span-5">
+
+            <%- include('header.ejs') %>
+                <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+
+                <% if (elections.length==0){ %>
+                    <h5>No election available for voting!</h5>
+                    <% } else{ %>
+                        <ul class="list-none">
+                            <% elections.forEach((election)=> { %>
+                                <li class="Election-Item">
+                                    <% if (election.launched==true) { %>
+                                        <div class="mt-8">
+                                            <h5>
+                                                <%= election.electionName %>:
+                                            </h5>
+                                            <p class="py-2">
+                                                <a href="/elections/<%=election.id%>/vote" class="text-blue-600">
+                                                    <% const fullUrl=request.protocol + "://" + request.hostname + ":" +
+                                                        app.get('PORT') + "/elections/" + election.id + "/vote" ; %>
+                                                        <%= fullUrl %>
+
+                                                </a>
+                                            </p>
+                                        </div>
+                                        <% } else { %>
+
+                                            <div class="mt-8">
+                                                <span class="text-xl text-green-600">
+                                                    <%= election.electionName %>
+                                                </span>is not available for voting!
+                                                <p class="py-2">
+
+                                                    <a href="/elections/<%=election.id%>/preview"
+                                                        class="text-blue-600">Preview Results</a>
+                                                </p>
+
+                                            </div>
+                                            <% } %>
+                                </li>
+                                <% }) %>
+
+                        </ul>
+                        <% } %>
+        </div>
+
+    </div>
+</body>
+
+</html>

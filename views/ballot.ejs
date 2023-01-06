@@ -16,7 +16,7 @@
             .getAttribute("content");
 
         function updateElection(id, status) {
-            //alert("Status ::: " + status);
+            //alert("Status ::: " + token);
             fetch(`/elections/${id}/launch`, {
                 method: "put",
                 headers: { "Content-Type": "application/json" },

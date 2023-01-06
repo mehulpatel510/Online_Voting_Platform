@@ -63,7 +63,19 @@
 
                 <div>
                     <% if (election.launched==false){ %>
-                        <h5> Voting has ended </h5>
+                        
+                        <h4 class="mt-4 text-xl font-semibold">Voting has ended
+                        </h4>
+                        <div class="mt-8">
+                            <% if (election.launched==true) { %>
+                                <p class="py-2">
+
+                                    <a href="/elections/<%=election.id%>/preview"
+                                        class="text-blue-600">Preview Results</a>
+                                </p>
+                                <% } %>
+
+                        </div>
                         <% } else { %>
                             <% if (questions.length==0){ %>
                                 <h5>No any question yet!</h5>
@@ -118,9 +130,19 @@
                                         <% } else{ %>
                                             <h4 class="mt-4 text-xl font-semibold">Thanks for giving your valuable vote!
                                             </h4>
+                                            <div class="mt-8">
+                                                <% if (election.launched==true) { %>
+                                                    <p class="py-2">
+
+                                                        <a href="/elections/<%=election.id%>/preview"
+                                                            class="text-blue-600">Preview Results</a>
+                                                    </p>
+                                                    <% } %>
+
+                                            </div>
 
                                             <% } %>
-                        <% } %>
+                                                <% } %>
                 </div>
         </div>
 

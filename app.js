@@ -14,7 +14,7 @@ const app = express();
 app.set('view engine', '.ejs');
 
 
-const { Voter, User, Election, Question, Option, Vote, Model, sequelize } = require("./models");
+const { Voter, User, Election, Question, Option, Vote,  sequelize } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
@@ -185,13 +185,14 @@ app.post("/session",
             response.redirect("/elections")
         else if (session.role == 'voter') {
 
-            if (session.electionId == undefined) {
-                request.flash('error', "Invalid election URL");
-                return response.redirect("/login")
-            } else {
+            if (session.electionId != undefined) {
                 let url = "/elections/" + session.electionId + "/vote";
                 console.log("URL:" + url)
                 response.redirect(url)
+
+            } else {
+                //request.flash('error', "Invalid election URL");
+                return response.redirect("/voting")
             }
         }
         else {
@@ -210,10 +211,10 @@ app.get("/signout", (request, response, next) => {
 });
 
 app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
-
+    console.log("On Election page");
     const allElections = await Election.getElections();
 
-    response.render("elections", {
+    return response.render("elections", {
         csrfToken: request.csrfToken(),
         allElections,
         username: request.user.firstName + " " + request.user.lastName
@@ -254,12 +255,14 @@ app.post("/elections/new", connectEnsureLogin.ensureLoggedIn(), async function (
 });
 
 app.get("/elections/:id", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
+    console.log("For ballot paper page")
     const election = await Election.findByPk(request.params.id);
     const questions = await Question.findAll({ where: { electionId: election.id } });
 
     const voters = await Voter.findAll({ where: { electionId: election.id } });
     const fullUrl = request.protocol + "://" + request.hostname + ":" + app.get('PORT') + "/elections/" + election.id + "/vote";
     console.log("launched:" + election.launched)
+    console.log("CSRF Token:::" +request.csrfToken())
     response.render("ballot", {
         csrfToken: request.csrfToken(), election, questions, voters, fullUrl
     });
@@ -268,10 +271,12 @@ app.get("/elections/:id", connectEnsureLogin.ensureLoggedIn(), async function (r
 
 app.put("/elections/:id/launch", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
     const election = await Election.findByPk(request.params.id);
-    console.log("Launched Election:" + election.electionName)
+    console.log("---->> Launched Election:" + election.electionName)
+    //console.log("request.body.launched --- " + request.body.launched)
     try {
         if (election.userId == request.user.id) {
             const updatedElection = await election.setLaunchedStatus(request.body.launched);
+            //console.log("updated---" + updatedElection.launched)
             return response.json(updatedElection);
         }
         else {
@@ -284,6 +289,35 @@ app.put("/elections/:id/launch", connectEnsureLogin.ensureLoggedIn(), async func
         return response.status(422).json(error);
     }
 
+});
+app.get("/voting", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
+    console.log("On Voting page")
+    try {
+
+        console.log("Voter id:" + request.user.id)
+        console.log("Role:" + session.role)
+        if (session.role == 'voter') {
+            const elections = await Election.findAll({
+                //where: {launched: true},
+                // include:[
+                //     {model:Voter, where:{id:request.user.id}}
+                // ]
+            });
+            response.render("voting", {
+                csrfToken: request.csrfToken(), elections, request, app
+            });
+        }
+        else {
+            let error = new Error()
+            error.message = 'Invalid user/login as voter'
+            throw error;
+            //throw(new Error('Invalid User'))
+        }
+} catch (error) {
+    console.log("For Voter error:" + error.message)
+    request.flash('error', error.message);
+    return response.redirect("/login");
+}
 });
 
 app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
@@ -373,7 +407,7 @@ app.post("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async funct
 });
 
 app.get("/elections/:id/preview",
-    //connectEnsureLogin.ensureLoggedIn(), 
+    connectEnsureLogin.ensureLoggedIn(),
     async function (request, response) {
         const election = await Election.findByPk(request.params.id);
         const voters = await Voter.findAll({ where: { electionId: election.id } });
@@ -415,67 +449,6 @@ app.get("/elections/:id/preview",
             // console.log(item.count)
             console.log(item.dataValues.count)
         })
-
-
-        // const countVotes = await Vote.findAll({
-        //     attributes: ['Vote.questionId', 'Vote.optionId', [sequelize.fn('count', sequelize.col('Vote.id')), 'count']],
-        //     include: [
-        //         {
-        //             model: Option, attributes: ['optionText','questionId'],
-        //            // where: { id: Vote.optionId },
-        //            required: true,
-        //             include: {
-        //                 model: Question, attributes: ['questionText','electionId'],
-        //                 //where: { id: Vote.questionId },
-        //                 required: true,
-        //                 include: {
-        //                     model: Election, attributes: ['id'],
-        //                    where: { id: request.params.id },
-        //                    required: true
-        //                 }
-        //             },
-        //         },
-
-        //     ],
-        //     group: ['electionId','Vote.questionId', 'Option.id'],
-        //     //raw: true
-        //     //order: ['']
-        // });
-        // console.log(JSON.stringify(countVotes, null, 2));
-
-        // const { count, rows } = await Vote.findAndCountAll({
-        //     // include: [
-        //     //     {model: Question, attributes: ['questionText']},
-        //     //     {model: Option, attributes: ['optionText'] } // I need to count this. model.
-        //     // ],
-        //     group: ['Vote.questionId', 'Vote.optionId']
-        // });
-        // console.log("count: " + countVotes.length)
-        // console.log("rows: " + countVotes)
-        // countVotes.forEach((item) => {
-        //     console.log(item.dataValues.count)
-        // })
-
-
-        // const countVotes = await Vote.findAll({
-        //     //attributes:[Vote.questionId,Vote.optionId],
-        //     //model: Vote, required: true,
-        //     // include: {
-        //     //model: Option, required: true,
-        //     //     include: {
-        //     //         model: Question,
-        //     //         include: {
-        //     //             model: Election, required: true,
-        //     //             where: { id: election.id }
-        //     //         }
-        //     //     }
-        //     //  },
-        //     //        where: { electionId: election.id },
-        //     group: ['Vote.questionId', 'Vote.optionId', 'Vote.id']
-        // });
-
-        // console.log("Votes Length: " + countVotes.length)
-        // const votes = await Vote.count({ group: ['questionId', 'optionId'] });
 
         response.render("preview", {
             csrfToken: request.csrfToken(), election, voters, questions, Question, countVotes
@@ -601,6 +574,30 @@ app.post("/questions/:id", connectEnsureLogin.ensureLoggedIn(), async function (
     try {
         const option = await Option.addOption(request.body, question.id);
         console.log("Option Created: " + option.id);
+        //console.log(request.accepts)
+        if (request.accepts("html")) {
+            console.log("Html Request");
+            
+            return response.redirect("/questions/" + question.id);
+        }
+        else {
+            return response.json(option);
+        }
+    } catch (error) {
+        request.flash('error', { message: error.message });
+        console.log(error);
+        return response.redirect("/questions/" + question.id);
+    }
+
+});
+
+
+app.post("/questions/:id", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
+    const question = await Question.findByPk(request.params.id);
+
+    try {
+        const option = await Option.addOption(request.body, question.id);
+        console.log("Option Created: " + option.id);
 
         if (request.accepts("html")) {
             console.log("Html Request");
@@ -616,7 +613,6 @@ app.post("/questions/:id", connectEnsureLogin.ensureLoggedIn(), async function (
     }
 
 });
-
 
 app.post("/users", async (request, response) => {
     const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
@@ -637,7 +633,7 @@ app.post("/users", async (request, response) => {
                     }
                 });
                 console.log(user);
-                response.redirect("/");
+                response.redirect("/elections");
             })
             .catch(err => {
                 console.log("Error at Sign up:" + err);
