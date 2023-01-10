@@ -2,7 +2,7 @@
 
 For testing use following credential.
 
-For Admin
+For Admin:
     Existing Users:
         Username - admin@gmail.com  (In place of Voter ID)
         Password - admin
@@ -10,9 +10,25 @@ For Admin
     For new registration of admin
         Note: use 'admin' keyword in your username/email id like admin123@gmail.com
 
-For voter
+
+For voter:
     Existing user:
         VoterId: ABCD1
         password: ABCD1
+
+==========================================================
+index
+    |--> Sign Up
+    |--> Login  -- (admin) --> Elections
+                                    |--> New Election
+                                    |--> Ballot (For selected Election)
+                                            |--> Questions
+                                                    |--> New Question
+                                                            |--> Options
+                                            |--> Voter
+
+                -- (voter) --> vote
+                           --> preview (result)
+
 
     
