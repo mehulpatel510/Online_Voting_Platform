@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/css/styles.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+
+    <title>Preview Ballot Paper</title>
+</head>
+
+<body>
+    <div class="grid grid-cols-6">
+        <div class="col-start-3 col-span-5">
+
+            <%- include('header.ejs') %>
+                <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+                <nav>
+                    <a href="/">Home</a> >
+                    <a href="/elections/<%= election.id %>">
+                        <%= election.electionName %>
+                    </a> >
+                    Preview Ballot Paper
+                </nav>
+
+
+                <h1 class="mt-8 text-3xl font-semibold text-gray-600">
+                    <%= election.electionName %> - Preview Ballot Paper
+                </h1>
+
+                <div class="mt-8 mb-2">
+                    <h5>Your election has <%= questions.length %> questions in the ballot.</h5>
+                </div>
+
+                <h4  class="mt-2 mb-2">List of Questions
+                    <label class="pl-2 pr-2 text-sm text-black-600 bg-gray-400 rounded border-gray-600">
+                        <%- questions.length %>
+                    </label>
+                </h4>
+                <ol class="list-decimal">
+
+                    <% for (let i=0; i < questions.length; i++) { %>
+                        <li>
+                            <div  class="mt-4 mb-2">
+                                <%- questions[i].questionText %>
+                                    <br />
+
+                                    <ol class="ml-16 list-[upper-roman]">
+                                        <% for (let j=0; j < options[i].length ; j++) { %>
+                                            <li>
+                                                <div>
+                                                    <%- options[i][j].optionText %>
+
+                                                </div>
+                                            </li>
+                                            <% } %>
+
+                                    </ol>
+                            </div>
+                        </li>
+                        <% } %>
+                </ol>
+
+
+                <div class="mt-8">
+                    <% if (election.launched==false) { %>
+                        <p class="py-2">
+                            <a href="#" onclick="updateElection(<%= election.id %>, true)" class="text-blue-600">Launch
+                                Election</a>
+                        </p>
+                        <% } else{ %>
+
+                            <p class="py-2">
+
+                                <a href="#" onclick="updateElection(<%= election.id %>, false)"
+                                    class="text-blue-600">End Election</a>
+                            </p>
+                            <% } %>
+
+                </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

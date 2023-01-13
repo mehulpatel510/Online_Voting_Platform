@@ -22,11 +22,14 @@
                 <a href="/">Home</a> >
                 <a href="/elections/<%= election.id %>"><%= election.electionName %></a> >
                 <a href="/elections/<%= election.id %>/questions">Questions</a> >
-                New Question
+               Edit Question
+                
             </nav>
           
 
-            <h1 class="mt-8 text-3xl font-semibold text-gray-600">New Question</h1>
+            <h1 class="mt-8 text-3xl font-semibold text-gray-600">
+                Edit Question
+            </h1>
             
                 <div class="text-red-600 mt-4">
 
@@ -46,19 +49,19 @@
                     rel="stylesheet" type="text/css">
 
 
-                <form action="/elections/<%= election.id %>/questions/new" method="post">
+                <form action="/elections/<%= election.id %>/questions/edit" method="post">
                     <input type="hidden" name="_csrf" value="<%- csrfToken %>" />
-
+                    <input type="hidden" name="questionId" value="<%= question.id %>" />
                     <div class="py-2">
                         <label for="questionText">What is your Question?</label>
-                        <input type="text" name="questionText" required
+                        <input type="text" name="questionText" required value="<%= question.questionText %>"
                             class="border border-gray-600 rounded text-gray-900 p-2 w-full" />
                     </div>
 
                     <div class="py-2">
                         <label for="description">Description</label>
                         <textarea name="description" required style="text-align: left; align-content: left;"
-                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" >
+                            class="border border-gray-600 rounded text-gray-900 p-2 w-full" ><%= question.description%>
                         </textarea> 
                     </div>
 

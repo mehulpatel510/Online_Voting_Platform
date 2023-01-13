@@ -10,43 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="<%= csrfToken %>">
 
-    <script>
-        var token = document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute("content");
-
-        function updateElection(id, status) {
-            console.log("Status ::: " + status);
-            // fetch(`/todos/${id}/markAsCompleted`, {
-            fetch(`/elesctions/${id}`, {
-                method: "put",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "_csrf": token,
-                    completed: status
-                })
-            })
-                .then((res) => {
-                    window.location.reload();
-                })
-                .catch((err) => console.error(err));
-        }
-
-        function removeElection(id) {
-            fetch(`/elections/${id}`, {
-                method: "delete",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "_csrf": token
-                })
-            }).then((res) => {
-
-                window.location.reload();
-            })
-                .catch((err) => console.error(err));
-        }
-
-    </script>
+   
     <title>Vote</title>
 </head>
 
@@ -57,10 +21,12 @@
             <%- include('header.ejs') %>
                 <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
 
+                <nav>
+                    <a href="/">Home</a></li>
+                </nav>
                 <h1 class="mt-8 text-3xl font-semibold text-gray-600">
                     <%= election.electionName %>
                 </h1>
-
                 <div>
                     <% if (election.launched==false){ %>
                         
@@ -74,7 +40,6 @@
                                         class="text-blue-600">Preview Results</a>
                                 </p>
                                 <% } %>
-
                         </div>
                         <% } else { %>
                             <% if (questions.length==0){ %>

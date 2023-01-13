@@ -55,6 +55,10 @@
 
             <%- include('header.ejs') %>
                 <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+                <nav>
+                    <a href="/">Home</a> > <%= election.electionName %>
+                </nav>
+              
 
                 <h1 class="mt-8 text-3xl font-semibold text-gray-600">
                     <%= election.electionName %> - Questions
@@ -89,6 +93,14 @@
                     </p>
                 </div>
 
+                <div class="mt-8">
+                        <p class="py-2">
+                            <a href="/elections/<%=election.id%>/ballot" target="_blank"
+                                class="text-blue-600">
+                                Preview Ballot Paper</a>
+                        </p>
+                        
+            </div>
                 <div class="mt-8">
                         <% if (election.launched==false) { %>
                             <p class="py-2">

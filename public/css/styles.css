@@ -11,3 +11,16 @@ table, td{
 .Election-Item:hover .trash-icon{
     display: block;
 }
+
+nav, nav > a{
+    
+    background-color: green;
+    color: white;
+    
+    width: fit-content;
+    padding: 5px;
+    text-decoration: bolder;
+    font-size: 18px;
+    border-radius: 10px;
+    margin: 10px;
+}

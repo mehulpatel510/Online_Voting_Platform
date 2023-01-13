@@ -18,7 +18,10 @@
         <div class="col-start-3 col-span-5">
 
             <%- include('header.ejs') %>
-                <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+                <!-- <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+                <nav>
+                    <a href="/">Home</a></li>
+                </nav> -->
 
                 <% if (elections.length==0){ %>
                     <h5>No election available for voting!</h5>
@@ -28,9 +31,11 @@
                                 <li class="Election-Item">
                                     <% if (election.launched==true) { %>
                                         <div class="mt-8">
-                                            <h5>
-                                                <%= election.electionName %>:
-                                            </h5>
+                                            Give your valuable vote for election
+                                            <span class="text-xl text-green-600">
+                                                <%= election.electionName %>
+                                        </span> on the following link.
+
                                             <p class="py-2">
                                                 <a href="/elections/<%=election.id%>/vote" class="text-blue-600">
                                                     <% const fullUrl=request.protocol + "://" + request.hostname + ":" +
@@ -42,7 +47,7 @@
                                         </div>
                                         <% } else { %>
 
-                                            <div class="mt-8">
+                                            <div class="mt-8">Election 
                                                 <span class="text-xl text-green-600">
                                                     <%= election.electionName %>
                                                 </span>is not available for voting!

@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+  Model, Option
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Question extends Model {
@@ -25,6 +25,25 @@ module.exports = (sequelize, DataTypes) => {
       const question = await Question.findByPk(id);
       console.log("Question Text:" + question.questionText )
       return question.questionText;
+    }
+
+    async updateQuestion({questionText, description })
+    {
+      // this.questionText = questionText;
+      // this.description = description;
+
+      
+      return this.update({questionText: questionText, description: description});
+    }
+
+    
+    async deleteQuestion() {
+      // await Option.deleteOptions(this.id)
+      return Question.destroy({
+        where: {
+          id: this.id
+        }
+      });
     }
   }
   Question.init({

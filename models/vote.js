@@ -31,7 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     voterId: DataTypes.INTEGER,
     questionId: DataTypes.INTEGER,
     optionId: DataTypes.INTEGER
-  }, {
+  }
+  , {
     sequelize,
     modelName: 'Vote',
   });

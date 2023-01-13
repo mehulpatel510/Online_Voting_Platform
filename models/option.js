@@ -16,10 +16,31 @@ module.exports = (sequelize, DataTypes) => {
       })
     }
 
-    static addOption({ optionText }, questionId) {
+    static addOption( optionText , questionId) {
       return this.create({ optionText: optionText, questionId: questionId });
     }
 
+    
+    static deleteOptions(questionId) {
+      return Option.destroy({
+        where: {
+          questionId: questionId
+        }
+      });
+    }
+
+    static getOptions(question_Id)
+    {
+      return Option.findAll({where:{questionId: question_Id}})
+    }
+
+    deleteOption() {
+      return Option.destroy({
+        where: {
+          id: this.id
+        }
+      });
+    }
 
   }
   Option.init({

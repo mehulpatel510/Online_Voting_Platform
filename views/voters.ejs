@@ -56,7 +56,11 @@
 
             <%- include('header.ejs') %>
                 <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
-
+                <nav>
+                    <a href="/">Home</a> >
+                    <a href="/elections/<%= election.id %>"><%= election.electionName %></a> >
+                    Voters
+                </nav>
                 <h1 class="mt-8 text-3xl font-semibold text-gray-600">
                     <%= election.electionName %> - Voters
                 </h1>
