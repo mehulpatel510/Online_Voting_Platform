@@ -18,14 +18,29 @@
         <div class="col-start-3 col-span-5">
 
             <%- include('header.ejs') %>
-                <!-- <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+            <% if(request.user != undefined ) { %>
+                <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
                 <nav>
                     <a href="/">Home</a></li>
-                </nav> -->
-
+                </nav>
+                <% } %>
                 <% if (elections.length==0){ %>
                     <h5>No election available for voting!</h5>
                     <% } else{ %>
+
+                        <div class="text-red-600 mt-4">
+
+                            <% if(messages && messages.error && messages.error.length> 0) { %>
+                                <% for(var i=0; i<messages.error.length; i++) { %>
+                                    <li>
+                                        <%= messages.error[i] %>
+                                    </li>
+                                    <% } %>
+                                        <% } %>
+
+
+                        </div>
+
                         <ul class="list-none">
                             <% elections.forEach((election)=> { %>
                                 <li class="Election-Item">

@@ -223,12 +223,19 @@ app.post("/session",
     });
 
 app.get("/signout", (request, response, next) => {
+    const userRole = session.role;
+    console.log("UserRole===" + userRole)
     request.logout((err) => {
         if (err)
             return next(err);
-        else
+        else{
+            if(userRole == 'admin'){
             return response.redirect("/");
-    })
+            }else {
+                return response.redirect("/voting");
+                }
+        }
+})
 });
 
 app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
@@ -297,12 +304,12 @@ app.get("/elections/:id/ballot", connectEnsureLogin.ensureLoggedIn(), async func
     const options = [];
     //let i=0;
     for (let i = 0; i < questions.length; i++) {
-    //await questions.forEach(async (item) => {
+        //await questions.forEach(async (item) => {
         const tempOptions = await Option.getOptions(questions[i].id);
         console.log(tempOptions.length)
         options.push(tempOptions);
         console.log(options[i].length)
-        
+
     }
     console.log(options)
     console.log("launched:" + election.launched)
@@ -335,38 +342,38 @@ app.put("/elections/:id/launch", connectEnsureLogin.ensureLoggedIn(), async func
     }
 
 });
-app.get("/voting", 
-//connectEnsureLogin.ensureLoggedIn(), 
-async function (request, response) {
-    console.log("On Voting page")
-    try {
+app.get("/voting",
+    //connectEnsureLogin.ensureLoggedIn(), 
+    async function (request, response) {
+        console.log("On Voting page")
+        try {
 
-        //console.log("Voter id:" + request.user.id)
-        //console.log("Role:" + session.role)
-        //if (session.role == 'voter') 
-        {
-            const elections = await Election.findAll({
-                //where: {launched: true},
-                // include:[
-                //     {model:Voter, where:{id:request.user.id}}
-                // ]
-            });
-            response.render("voting", {
-                csrfToken: request.csrfToken(), elections, request, app
-            });
+            //console.log("Voter id:" + request.user.id)
+            //console.log("Role:" + session.role)
+            //if (session.role == 'voter') 
+            {
+                const elections = await Election.findAll({
+                    //where: {launched: true},
+                    // include:[
+                    //     {model:Voter, where:{id:request.user.id}}
+                    // ]
+                });
+                response.render("voting", {
+                    csrfToken: request.csrfToken(), elections, request, app
+                });
+            }
+            // else {
+            //     let error = new Error()
+            //     error.message = 'Invalid user/login as voter'
+            //     throw error;
+            //     //throw(new Error('Invalid User'))
+            // }
+        } catch (error) {
+            console.log("For Voter error:" + error.message)
+            request.flash('error', error.message);
+            return response.redirect("/login");
         }
-        // else {
-        //     let error = new Error()
-        //     error.message = 'Invalid user/login as voter'
-        //     throw error;
-        //     //throw(new Error('Invalid User'))
-        // }
-    } catch (error) {
-        console.log("For Voter error:" + error.message)
-        request.flash('error', error.message);
-        return response.redirect("/login");
-    }
-});
+    });
 
 app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
     console.log("On vote page")
@@ -376,9 +383,46 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
         console.log("Voter id:" + request.user.id)
         console.log("Role:" + session.role)
         console.log("Election ID:" + session.electionId)
+
+
+
+
         if (session.role) {
             console.log("Role:" + session.role)
             if (session.role == 'voter') {
+
+                const countVotes = await Vote.findAll({
+                    attributes: [[sequelize.fn('count', sequelize.col('Vote.voterId')), 'count']],
+                    where: { voterId: request.user.id },
+                    include: [
+                        {
+                            model: Question, required: true, attribute: ['id'],
+                            include: [
+                                {
+                                    model: Election, required: true, attribute: ['id'],
+                                    where: { id: request.params.id },
+                                }]
+                        },
+                    ],
+
+                    group: ['Vote.voterId', 'Question->Election.id', 'Question.id'],
+
+                });
+
+                console.log("Count Votes= " + countVotes.length);
+                //console.log(JSON.stringify(countVotes))
+                countVotes.forEach((item) => {
+                    //  console.log(item)
+                    // console.log(item.count)
+                    console.log(item.dataValues.count)
+                })
+                if (countVotes.length > 0) {
+                    let error = new Error()
+                    error.message = "Already Voted for this election!"
+                  
+                    request.flash('error', error.message);
+                    return response.redirect("/voting");
+                }
                 let temp = session.questionIndex;
                 if (temp == undefined) {
                     session.questionIndex = 0;
@@ -455,7 +499,7 @@ app.post("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async funct
 });
 
 app.get("/elections/:id/preview",
-    connectEnsureLogin.ensureLoggedIn(),
+    //connectEnsureLogin.ensureLoggedIn(),
     async function (request, response) {
         const election = await Election.findByPk(request.params.id);
         const voters = await Voter.findAll({ where: { electionId: election.id } });
@@ -499,7 +543,7 @@ app.get("/elections/:id/preview",
         // })
 
         response.render("preview", {
-            csrfToken: request.csrfToken(), election, voters, questions, Question, countVotes
+            csrfToken: request.csrfToken(), election, voters, questions, Question, countVotes, request
         });
 
     });
@@ -699,7 +743,7 @@ app.post("/questions/:id", connectEnsureLogin.ensureLoggedIn(), async function (
         if (request.accepts("html")) {
             console.log("Html Request");
 
-            return response.redirect("/questions/" + question.id + "?electionId=" + request.body.electionId );
+            return response.redirect("/questions/" + question.id + "?electionId=" + request.body.electionId);
         }
         else {
             return response.json(option);
@@ -707,7 +751,7 @@ app.post("/questions/:id", connectEnsureLogin.ensureLoggedIn(), async function (
     } catch (error) {
         request.flash('error', { message: error.message });
         console.log(error);
-        return response.redirect("/questions/" + question.id  + "?electionId=" + request.body.electionId);
+        return response.redirect("/questions/" + question.id + "?electionId=" + request.body.electionId);
     }
 
 });
@@ -717,7 +761,7 @@ app.delete("/options/:id", connectEnsureLogin.ensureLoggedIn(), async function (
     console.log("to delete a option with ID: ", request.params.id);
     const option = await Option.findByPk(request.params.id);
     try {
-        if (option  == null)
+        if (option == null)
             return response.send(false);
         else {
             await option.deleteOption();

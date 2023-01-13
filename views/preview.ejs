@@ -10,43 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="<%= csrfToken %>">
 
-    <script>
-        var token = document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute("content");
-
-        function updateElection(id, status) {
-            console.log("Status ::: " + status);
-            // fetch(`/todos/${id}/markAsCompleted`, {
-            fetch(`/elesctions/${id}`, {
-                method: "put",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "_csrf": token,
-                    completed: status
-                })
-            })
-                .then((res) => {
-                    window.location.reload();
-                })
-                .catch((err) => console.error(err));
-        }
-
-        function removeVoter(id) {
-            fetch(`/voters/${id}`, {
-                method: "delete",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "_csrf": token
-                })
-            }).then((res) => {
-
-                window.location.reload();
-            })
-                .catch((err) => console.error(err));
-        }
-
-    </script>
     <title>Preview Results</title>
 </head>
 
@@ -55,10 +18,13 @@
         <div class="col-start-2 col-span-4">
 
             <%- include('header.ejs') %>
+            <% if(request.user != undefined ) { %>
                 <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
-
+                <% } %>
+         
+         
                 <nav>
-                    <a href="/">Home</a> >
+                    <a href="/voting">Home</a> >
                     <!--a href="/elections/<%= election.id %>"><%= election.electionName %></a> -->
                     Preview Results
                 </nav>
