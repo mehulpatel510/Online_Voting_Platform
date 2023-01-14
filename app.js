@@ -228,14 +228,14 @@ app.get("/signout", (request, response, next) => {
     request.logout((err) => {
         if (err)
             return next(err);
-        else{
-            if(userRole == 'admin'){
-            return response.redirect("/");
-            }else {
+        else {
+            if (userRole == 'admin') {
+                return response.redirect("/");
+            } else {
                 return response.redirect("/voting");
-                }
+            }
         }
-})
+    })
 });
 
 app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async function (request, response) {
@@ -419,7 +419,7 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
                 if (countVotes.length > 0) {
                     let error = new Error()
                     error.message = "Already Voted for this election!"
-                  
+
                     request.flash('error', error.message);
                     return response.redirect("/voting");
                 }
@@ -544,6 +544,77 @@ app.get("/elections/:id/preview",
 
         response.render("preview", {
             csrfToken: request.csrfToken(), election, voters, questions, Question, countVotes, request
+        });
+
+    });
+
+
+app.get("/elections/:id/previewChart",
+    //connectEnsureLogin.ensureLoggedIn(),
+    async function (request, response) {
+        const election = await Election.findByPk(request.params.id);
+        const voters = await Voter.findAll({ where: { electionId: election.id } });
+        const questions = await Question.findAll({ where: { electionId: election.id } });
+
+        const countVotes = await Vote.findAll({
+            attributes: [[sequelize.fn('count', sequelize.col('Vote.optionId')), 'count']],
+            include: [
+                { model: Option, required: true, attribute: ['optionText'] },
+                {
+                    model: Question, required: true, attribute: ['questionText'],
+                    include: [
+                        {
+                            model: Election, required: true, attribute: ['id'],
+                            where: { id: request.params.id },
+                        }]
+                },
+            ],
+
+            group: ['Question->Election.id', 'Question.id', 'Option.id'],
+        });
+
+        const questionSet = [];
+        const optionSet = [];
+        const voteSet = [];
+        //let i=0;
+        for (let i = 0; i < questions.length; i++) {
+            const tempVotes = await Vote.findAll({
+                attributes: [[sequelize.fn('count', sequelize.col('Vote.optionId')), 'count']],
+                include: [
+                    { model: Option, required: true, attribute: ['optionText'] },
+                    {
+                        model: Question, required: true, attribute: ['questionText'],
+                        where:{id: questions[i].id},
+                        include: [
+                            {
+                                model: Election, required: true, attribute: ['id'],
+                                where: { id: request.params.id },
+                            }]
+                    },
+                ],
+
+                group: ['Question->Election.id', 'Question.id', 'Option.id'],
+            });
+            let options = [];
+            let counts = [];
+
+            questionSet.push(questions[i].questionText);
+            tempVotes.forEach((vote) => {
+                options.push(vote.dataValues.Option.optionText);
+                counts.push(vote.dataValues.count);
+            });
+
+            optionSet.push(options);
+            voteSet.push(counts);
+
+
+        }
+        console.log(questionSet);
+        console.log(optionSet);
+        console.log(voteSet);
+        response.render("previewChart", {
+            csrfToken: request.csrfToken(), election, voters, questions, Question, countVotes, 
+            request, questionSet, optionSet, voteSet
         });
 
     });

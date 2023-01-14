@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/css/styles.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+
+    <title>Preview Results Chart</title>
+</head>
+
+<body>
+    
+    
+    <div class="grid grid-cols-6">
+        <div class="col-start-2 col-span-4">
+
+            <%- include('header.ejs') %>
+                <% if(request.user !=undefined ) { %>
+                    <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
+                    <% } %>
+
+
+                        <nav>
+                            <a href="/voting">Home</a> >
+                            <!--a href="/elections/<%= election.id %>"><%= election.electionName %></a> -->
+                            Preview Results
+                        </nav>
+
+                        <h1 class="mt-8 text-3xl font-semibold text-gray-600">
+                            Preview Results
+                        </h1>
+        </div>
+
+        <div class="col-start-2 col-span-4">
+            <% if (election.launched==true){ %>
+                <h5> This election in ongoing. </h5>
+                <% } %>
+
+                    <div class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
+
+                        <table class="table-auto border-separate border-spacing-0 border border-slate-400">
+                            <caption><b>Election: <%= election.electionName %></b></caption>
+                            <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Option</th>
+                                    <th>Votes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% countVotes.forEach(async (item)=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= item.dataValues.Question.questionText %>
+                                        </td>
+                                        <td>
+                                            <%= item.dataValues.Option.optionText %>
+                                        </td>
+                                        <td>
+                                            <%= item.dataValues.count %>
+                                        </td>
+
+
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+
+                        </table>
+                    </div>
+        </div>
+
+
+    
+<div class="col-start-2 col-span-4">
+    <% for(let i=0; i < questionSet.length; i++){ %>
+        <div style="width:300px; float: left; border: solid 2px red ; border-radius: 10px;" 
+        class="m-10 text-xl text-blue-600  font-semibold p-5" >
+        Question: <%- questionSet[i] %>
+                    <canvas id="question-<%- i %>" width="200" height="200"></canvas>
+        </div>
+        
+        <% } %>
+
+
+            <script>
+                const questionSetJSON = <%- JSON.stringify(questionSet) %>;
+                const optionSetJSON = <%- JSON.stringify(optionSet) %>;
+                const voteSetJSON = <%- JSON.stringify(voteSet) %>;
+
+                (async function () {
+                    for (let i = 0; i < questionSetJSON.length; i++) {
+
+                        new Chart(
+                            document.getElementById('question-' + i),
+                            {
+                                type: 'bar',
+                                data: {
+                                    labels: optionSetJSON[i], 
+                                    datasets: [
+                                        {
+                                            label: "No of Votes",
+                                            data: voteSetJSON[i], 
+                                            backgroundColor: 'rgb(0, 255, 0)',
+                                            borderColor: 'rgb(255, 0, 0)',
+                                            borderWidth: 1,
+                                        }
+                                    ]
+                                },
+                            }
+                        );
+                    }
+                })();
+            </script>
+            </div>
+</div>
+</body>
+
+</html>
