@@ -26,6 +26,12 @@ module.exports = (sequelize, DataTypes) => {
       return this.create({ voterId:voterId, password:hashedPassword, electionId: electionId });
     }
 
+   async changePassword(newPassword){
+      console.log("New Password: " + newPassword);
+      const hashedPassword = await  bcrypt.hash(newPassword, saltRounds);
+      this.update({password: hashedPassword});
+    }
+
     deleteVoter() {
       return Voter.destroy({
         where: {

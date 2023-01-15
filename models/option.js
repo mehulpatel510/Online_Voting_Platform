@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       return Option.findAll({where:{questionId: question_Id}})
     }
 
+    updateOptionText(optionText){
+      return this.update({optionText: optionText});
+    }
+    
     deleteOption() {
       return Option.destroy({
         where: {

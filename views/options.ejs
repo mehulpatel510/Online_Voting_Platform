@@ -32,6 +32,36 @@
         //         .catch((err) => console.error(err));
         // }
 
+        function editOption(id) {
+            let optionLabelElement = document.getElementById('optionLabel-'+id); 
+            let optionInputElement = document.getElementById('optionInput-'+id);
+            optionLabelElement.style.display = "None";
+            optionInputElement.style.display = "block"
+            let optionTextElement = document.getElementById('optionText-' + id);
+            optionTextElement.focus();
+        }
+        function updateOption(id) {
+            let optionLabelElement = document.getElementById('optionLabel-'+id); 
+            let optionInputElement = document.getElementById('optionInput-'+id);
+            optionLabelElement.style.display = "block";
+            optionInputElement.style.display = "None"
+            let optionTextElement = document.getElementById('optionText-' + id);
+            
+            fetch(`/questions/${id}`, {
+                method: "put",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "_csrf": token,
+                    optionId: id,
+                    optionText: optionTextElement.value
+                })
+            })
+                .then((res) => {
+                    window.location.reload();
+                })
+                .catch((err) => console.error(err));
+        }
+
         function removeOption(id) {
             fetch(`/options/${id}`, {
                 method: "delete",
@@ -52,13 +82,15 @@
 
 <body>
     <div class="grid grid-cols-6">
-        <div class="col-start-3 col-span-5">
+        <div class="col-start-3 col-span-4">
 
             <%- include('header.ejs') %>
                 <p class="py-2"><a href="/signout" class="text-green-600">Sign-Out</a></p>
                 <nav>
                     <a href="/">Home</a> >
-                    <a href="/elections/<%= election.id %>"><%= election.electionName %></a> >
+                    <a href="/elections/<%= election.id %>">
+                        <%= election.electionName %>
+                    </a> >
                     <a href="/elections/<%= election.id %>/questions">Questions</a> >
                     Question # <%= question.id %>
                 </nav>
@@ -66,16 +98,17 @@
                 <h1 class="mt-8 text-3xl font-semibold text-gray-600 ">
                     Question #<%= question.id %>
 
-                    
+
                 </h1>
-                <a style="float:right ;" href="/elections/<%= election.id %>/questions/edit?questionId=<%= question.id %>" >Edit Question </a>
+                <a style="float:right ;"
+                    href="/elections/<%= election.id %>/questions/edit?questionId=<%= question.id %>">Edit Question </a>
 
                 <div>
                     <% if (options.length==0){ %>
                         <h5>You haven't added any answer options yet!</h5>
                         <% } else{ %>
 
-                            <h4 class="mt-8" ><u>Answer Options</u>
+                            <h4 class="mt-8"><u>Answer Options</u>
                                 <label class="pl-2 pr-2 text-sm text-black-600 bg-gray-400 rounded border-gray-600">
                                     <%- options.length %>
                                 </label>
@@ -83,30 +116,37 @@
                             <ul class="list-disc">
                                 <% options.forEach((item)=> { %>
                                     <li class="Election-Item">
-                                        <div class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
-                                            <label class="ml-2 text-xl text-gray-600 cursor-pointer">
+                                        <div id="optionLabel-<%- item.id %>" style="display: block; flex: auto; "
+                                            class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
+                                            <label class="ml-2 text-xl text-gray-600 cursor-pointer float-left">
                                                 <%- item.optionText %>
-                                            
+
                                             </label>
-<!-- 
-                                            <form action="/questions/<%= question.id %>/options/edit">
-                                                <input type="hidden" name="optionId" value="<%- item.id %>" />
-                                                <button type="submit" class="text-blue-600 ml-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                                      </svg>
-                                                      
-                                                </button>
-                    
-                                            </form>    -->
                                             
-                                            <a href="#" class="ml-2"
-                                                onclick="removeOption(<%- item.id %>)">
+                                          
+                                            <a href="#" class="ml-2  float-left" onclick="editOption(<%- item.id %>)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                            </svg>
+                                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                </svg>
+
+                                            </a>
+                                            <a href="#" class="ml-2  float-left" onclick="removeOption(<%- item.id %>)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                        <div id="optionInput-<%- item.id %>" style="display: none; flex: auto; " class="w-full" >
+                                            <input type="text" class="border-gray-600 pl-2" style="float: left;"
+                                            name="optionText" id="optionText-<%- item.id %>" 
+                                            value="<%- item.optionText %>"  />
+
+                                            <a href="#" class="ml-2" onclick="updateOption(<%- item.id %>)">
+                                                <img class="ml-2" src="../save.jpg" width="25px" height="25px" style="float: left;"/>
                                             </a>
                                         </div>
                                     </li>
@@ -141,13 +181,13 @@
                         <div class="flex gap-2 py-4">
                             <div>
                                 <input type="text" name="optionText" required placeholder="Add Answer's Option "
-                                class="border border-gray-600 rounded text-gray-900 wp-content p-2 text-sm" />
+                                    class="border border-gray-600 rounded text-gray-900 wp-content p-2 text-sm" />
                             </div>
                             <div>
                                 <button type="submit"
-                                class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">
-                                Add Answer Option
-                            </button>
+                                    class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">
+                                    Add Answer Option
+                                </button>
                             </div>
                         </div>
                     </form>
