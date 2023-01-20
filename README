@@ -26,9 +26,12 @@ index
                                                     |--> New Question
                                                             |--> Options
                                             |--> Voter
+                                            |--> Launch/End Election
+                                            |--> Preview Result
 
                 -- (voter) --> vote
                            --> preview (result)
+
 
 
     

@@ -730,7 +730,7 @@ app.post("/elections/:id/questions/new", connectEnsureLogin.ensureLoggedIn(), as
         console.log("Inserted New Election");
         if (request.accepts("html")) {
             console.log("Html Request");
-            return response.redirect("/questions/" + question.id);
+            return response.redirect("/questions/" + question.id + "?electionId=" + election.id);
         }
         else {
             return response.json(election);
