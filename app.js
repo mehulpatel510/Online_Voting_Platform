@@ -419,7 +419,12 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
                     session.questionIndex = 0;
                 }
              
-                if (countVotes.length > 0 && session.questionIndex ==0 ) {
+               
+                const election = await Election.findByPk(request.params.id);
+                const questions = await Question.findAll({ where: { electionId: election.id } });
+                console.log("Questions length:" + questions.length)
+               
+                if (countVotes.length == questions.length ) {
                     let error = new Error()
                     error.message = "Already Voted for this election!"
 
@@ -427,9 +432,7 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
                     return response.redirect("/voting");
                 }
              
-                const election = await Election.findByPk(request.params.id);
-                const questions = await Question.findAll({ where: { electionId: election.id } });
-                console.log("Questions length:" + questions.length)
+               
                 if (session.questionIndex < questions.length) {
                     const question = questions[session.questionIndex];
                     console.log("question:" + question.id)
