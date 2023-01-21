@@ -56,8 +56,18 @@ For testing purpose use following credential.
 + https://www.loom.com/share/76b7708e7fea4a0ea407dcad207864ec
 
 ## Screen Shorts:
-![Login Page] (./ScreenShorts/Login.PNG)
-![List of Elections] (./ScreenShorts/List_of_Elections.PNG)
+![Login Page](/public/ScreenShorts/Login.PNG)
+![List of Elections](/public/ScreenShorts/List_of_Elections.PNG)
+![Manage Election](/public/ScreenShorts/Manage_Election.PNG)
+![Manage Question](/public/ScreenShorts/Manage_Question.PNG)
+![Manage Options](/public/ScreenShorts/Manage_Options.PNG)
+![Manahe Voters](/public/ScreenShorts/Manage_Voters.PNG)
+![Preview Ballot Paper](/public/ScreenShorts/Preview_Ballot_Paper.PNG)
+![Lanched Election](/public/ScreenShorts/Lanched_Election.PNG)
+![Voting Page for public](/public/ScreenShorts/Voting_Page_for_Public.PNG)
+![Cast a Vote By Voter](/public/ScreenShorts/Cast_a_Vote_by_Voter.PNG)
+![Preview Result](/public/ScreenShorts/Preview_Result.PNG)
+
 
 
 
