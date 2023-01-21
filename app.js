@@ -424,7 +424,7 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
                 const questions = await Question.findAll({ where: { electionId: election.id } });
                 console.log("Questions length:" + questions.length)
                
-                if (countVotes.length == questions.length ) {
+                if (countVotes.length == questions.length && session.questionIndex == 0) {
                     let error = new Error()
                     error.message = "Already Voted for this election!"
 
