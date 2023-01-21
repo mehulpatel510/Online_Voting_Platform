@@ -384,9 +384,6 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
         console.log("Role:" + session.role)
         console.log("Election ID:" + session.electionId)
 
-
-
-
         if (session.role) {
             console.log("Role:" + session.role)
             if (session.role == 'voter') {
@@ -416,17 +413,20 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
                     // console.log(item.count)
                     console.log(item.dataValues.count)
                 })
-                if (countVotes.length > 0) {
+             
+                let temp = session.questionIndex;
+                if (temp == undefined) {
+                    session.questionIndex = 0;
+                }
+             
+                if (countVotes.length > 0 && session.questionIndex ==0 ) {
                     let error = new Error()
                     error.message = "Already Voted for this election!"
 
                     request.flash('error', error.message);
                     return response.redirect("/voting");
                 }
-                let temp = session.questionIndex;
-                if (temp == undefined) {
-                    session.questionIndex = 0;
-                }
+             
                 const election = await Election.findByPk(request.params.id);
                 const questions = await Question.findAll({ where: { electionId: election.id } });
                 console.log("Questions length:" + questions.length)
