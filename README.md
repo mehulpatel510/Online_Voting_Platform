@@ -56,7 +56,7 @@ For testing purpose use following credential.
 + https://www.loom.com/share/76b7708e7fea4a0ea407dcad207864ec
 
 ## Screen Shorts:
-![Login Page](/public/ScreenShorts/Login.PNG)
+![Login Page](/public/ScreenShorts/Login.png)
 ![List of Elections](/public/ScreenShorts/List_of_Elections.PNG)
 ![Manage Election](/public/ScreenShorts/Manage_Election.PNG)
 ![Manage Question](/public/ScreenShorts/Manage_Question.PNG)

@@ -444,10 +444,11 @@ app.get("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async functi
                         csrfToken: request.csrfToken(), election, questions, session, question, options
                     });
                 } else {
+                    
                     response.render("vote", {
                         csrfToken: request.csrfToken(), election, questions, session
                     });
-
+                    session.questionIndex = 0;
                 }
 
             }
