@@ -4,7 +4,7 @@
 > This a web application *Online Voting System* created with NodeJS framework.
 > In this application, Two different user's role play a key role. One is admin for managing a election like create election, add questions related to election objective and add voter from whom they expect the opinion. Second user is vote, who will cast the vote for related election and also check the result.
 
-![Workflow Diagram for Online Voting System](/public/ScreenShorts/Workflow%20Diagram-2.png)
+![Workflow Diagram for Online Voting System](/public/ScreenShorts/Workflow%20Diagram-3.png)
  
 ## Demonstration
 For testing purpose use following credential.
